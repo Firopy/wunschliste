@@ -1039,8 +1039,10 @@ $("#dlg-bearbeiten").addEventListener("close", () => { const k = $("#bea-loesche
 
 async function linkTeilen() {
   const url = speicher?.modus === "live" ? `${location.origin}${location.pathname}?l=${listenId}` : location.href;
-  const text = "Mein Wunschzettel für Weihnachten";
-  if (navigator.share) { try { await navigator.share({ title: "Janis' Wunschzettel", text, url }); return; } catch (e) { if (e.name === "AbortError") return; } }
+  // Teilen-Menü nur am Handy. Am Laptop hängen manche Teilen-Dialoge sonst Text an den Link.
+  // Nur die Adresse übergeben, kein Begleittext: „Kopieren“ liefert dann den reinen Link.
+  const handy = window.matchMedia("(pointer: coarse)").matches;
+  if (handy && navigator.share) { try { await navigator.share({ url }); return; } catch (e) { if (e.name === "AbortError") return; } }
   try { await navigator.clipboard.writeText(url); hinweis("Link kopiert. Schick ihn deiner Familie."); }
   catch { hinweis(url); }
 }
@@ -1273,6 +1275,8 @@ async function janisAnmelden() {
       id = zufallsId(20);
       await fs.setDoc(fs.doc(db, "listen", id), { besitzer: fb.nutzer.uid, erstellt: fs.serverTimestamp() });
     }
+    // Schutz gegen Schleifen: nur weiterleiten, wenn wir nicht schon dort sind
+    if (id === listenId) { hinweis("Deine Liste ließ sich nicht laden. Lade die Seite neu."); return; }
     location.href = `${location.pathname}?l=${id}`;
   } catch (e) {
     console.error(e);
@@ -1303,7 +1307,8 @@ async function janisAnmelden() {
     return;
   }
 
-  listenId = new URLSearchParams(location.search).get("l");
+  // Nur den Kennungsteil nehmen, falls beim Kopieren Text an den Link geraten ist
+  listenId = (new URLSearchParams(location.search).get("l") || "").match(/^[A-Za-z0-9]+/)?.[0] || null;
   if (!listenId) {
     if (fb.istGoogle()) { janisAnmelden(); return; }
     startseite("Hier fehlt der Link", "Öffne den Wunschzettel über den Link, den Janis dir geschickt hat.");

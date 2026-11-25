@@ -627,7 +627,6 @@ async function firebaseStarten(config) {
   const app = appM.initializeApp(config);
   const auth = authM.getAuth(app);
   const db = fs.getFirestore(app);
-  try { await authM.getRedirectResult(auth); } catch (e) { console.warn(e); }
   let nutzer = await new Promise(r => { const ab = authM.onAuthStateChanged(auth, u => { ab(); r(u); }); });
   if (!nutzer) nutzer = (await authM.signInAnonymously(auth)).user;
   return {
@@ -636,10 +635,11 @@ async function firebaseStarten(config) {
     istGoogle() { return !!auth.currentUser && !auth.currentUser.isAnonymous; },
     async anmelden() {
       const provider = new authM.GoogleAuthProvider();
+      // Nur per Pop-up: Die Weiterleitungs-Anmeldung funktioniert auf github.io nicht zuverlässig.
       try { await authM.signInWithPopup(auth, provider); }
       catch (e) {
-        if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") return authM.signInWithRedirect(auth, provider);
         if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") return;
+        if (e.code === "auth/popup-blocked") throw new Error("Dein Browser hat das Anmeldefenster blockiert. Erlaube Pop-ups für diese Seite und tipp noch einmal auf „Anmelden“.");
         throw e;
       }
     },
@@ -1264,7 +1264,7 @@ function startseite(titel, text, mitAnmelden = true) {
 async function janisAnmelden() {
   if (!fb) return;
   try {
-    await fb.anmelden();
+    if (!fb.istGoogle()) await fb.anmelden();
     if (!fb.istGoogle()) return;
     const { fs, db } = fb;
     const snap = await fs.getDocs(fs.query(fs.collection(db, "listen"), fs.where("besitzer", "==", fb.nutzer.uid), fs.limit(1)));
@@ -1279,7 +1279,7 @@ async function janisAnmelden() {
     if (e.code === "permission-denied") {
       await fb.abmelden();
       startseite("Kein Zugriff", "Mit diesem Google-Konto kannst du hier keinen Wunschzettel anlegen. Melde dich mit dem Konto an, das in den Sicherheitsregeln steht.");
-    } else hinweis("Anmeldung hat nicht geklappt. Versuch es noch einmal.");
+    } else hinweis(e.message?.startsWith("Dein Browser") ? e.message : "Anmeldung hat nicht geklappt. Versuch es noch einmal.");
   }
 }
 

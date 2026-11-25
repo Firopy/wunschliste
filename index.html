@@ -59,7 +59,7 @@
     cursor: default;
   }
   .titel .zeile2 { display: block; padding-left: .9em; color: var(--kraft); }
-  .unterzeile { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; align-items: baseline; color: var(--dunst); max-width: 62ch; }
+  .unterzeile { grid-column: 1; display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; align-items: baseline; color: var(--dunst); max-width: 62ch; }
   .countdown { color: var(--schnee); font-weight: 700; }
   .kopf-knoepfe { display: flex; gap: .5rem; align-self: start; }
 
@@ -71,7 +71,8 @@
   .knopf-leise:hover { color: var(--schnee); border-color: var(--dunst); }
 
   /* Werkzeugleiste */
-  .leiste { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; align-items: center; margin-bottom: 2.75rem; }
+  .leiste { display: flex; flex-wrap: wrap; gap: .9rem 1.25rem; align-items: center; justify-content: space-between; margin-bottom: 2.75rem; }
+  .leiste-filter { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; align-items: center; }
   .chips { display: flex; flex-wrap: wrap; gap: .4rem; }
   .chip {
     font: inherit; font-size: .95rem; cursor: pointer;
@@ -86,7 +87,7 @@
     border: 1px solid rgba(244,246,242,.18); border-radius: 8px; padding: .4rem .6rem;
   }
   .ueberrasch {
-    margin-left: auto;
+    grid-column: 2; align-self: end; justify-self: end; white-space: nowrap;
     font: inherit; font-weight: 700; cursor: pointer;
     background: var(--gold); color: var(--tinte); border: 0; border-radius: 999px;
     padding: .6rem 1.2rem;
@@ -286,7 +287,7 @@
   @media (max-width: 640px) {
     header.kopf { grid-template-columns: 1fr; }
     .kopf-knoepfe { order: -1; justify-self: end; }
-    .ueberrasch { margin-left: 0; width: 100%; }
+    .ueberrasch { grid-column: 1; justify-self: stretch; width: 100%; margin-top: .5rem; }
     .raster { gap: 3.2rem; }
     .demo { font-size: .82rem; }
   }
@@ -304,7 +305,7 @@
   .knopf-gold:hover { filter: brightness(1.06); }
   .knopf-rand { font: inherit; font-weight: 700; cursor: pointer; background: transparent; color: var(--schnee); border: 2px solid rgba(244,246,242,.4); border-radius: 999px; padding: .5rem 1.1rem; }
   .knopf-rand:hover { border-color: var(--schnee); }
-  .besitzer-knoepfe { margin-left: auto; display: flex; gap: .5rem; flex-wrap: wrap; }
+  .besitzer-knoepfe { display: flex; gap: .5rem; flex-wrap: wrap; }
   .neu-karte {
     font: inherit; cursor: pointer; min-height: 320px; width: 100%;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .6rem;
@@ -362,6 +363,7 @@
       <span class="countdown" id="countdown"></span>
       <span id="intro"></span>
     </div>
+    <button class="ueberrasch" id="ueberrasch" type="button" hidden>Ich kann mich nicht entscheiden</button>
   </header>
 
   <section class="start" id="start" hidden>
@@ -371,15 +373,16 @@
   </section>
 
   <div class="leiste" id="leiste" role="group" aria-label="Wünsche filtern und sortieren" hidden>
-    <div class="chips" id="filter-chips"></div>
-    <label class="sortierung">Sortieren
-      <select id="sortierung">
-        <option value="prio">Wichtigste zuerst</option>
-        <option value="preis-auf">Günstigste zuerst</option>
-        <option value="preis-ab">Teuerste zuerst</option>
-      </select>
-    </label>
-    <button class="ueberrasch" id="ueberrasch" type="button">Ich kann mich nicht entscheiden</button>
+    <div class="leiste-filter">
+      <div class="chips" id="filter-chips"></div>
+      <label class="sortierung">Sortieren
+        <select id="sortierung">
+          <option value="prio">Wichtigste zuerst</option>
+          <option value="preis-auf">Günstigste zuerst</option>
+          <option value="preis-ab">Teuerste zuerst</option>
+        </select>
+      </label>
+    </div>
     <div class="besitzer-knoepfe" id="besitzer-knoepfe" hidden>
       <button class="knopf-rand" type="button" id="link-teilen">Link teilen</button>
       <button class="knopf-gold" type="button" id="neuer-wunsch">Neuer Wunsch</button>

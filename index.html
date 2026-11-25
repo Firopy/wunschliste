@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#123329">
+<title>Janis' Wunschzettel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Gloock&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --tanne: #123329;
+    --tanne-tief: #0b241d;
+    --kraft: #d6b98c;
+    --tinte: #2b2016;
+    --siegel: #b02a30;
+    --gold: #e6b84f;
+    --schnee: #f4f6f2;
+    --dunst: #a9c2b6;
+    --serif: "Gloock", "Georgia", "Times New Roman", serif;
+    --sans: "Atkinson Hyperlegible", "Verdana", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; background: var(--tanne-tief); }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(1200px 600px at 80% 0, #1d4a3c 0%, transparent 60%) no-repeat,
+      linear-gradient(var(--tanne) 0, var(--tanne-tief) 1400px) no-repeat,
+      var(--tanne-tief);
+    color: var(--schnee);
+    font-family: var(--sans);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+  }
+  .fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #schnee { z-index: 1; }
+  #konfetti { z-index: 25; }
+
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+
+  .page { max-width: 1120px; margin: 0 auto; padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2.5rem) 6rem; position: relative; z-index: 2; }
+
+  /* Kopf */
+  header.kopf { display: grid; grid-template-columns: 1fr auto; gap: 1rem 2rem; align-items: end; margin-bottom: 2.5rem; }
+  .titel {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.6rem, 9vw, 5.8rem);
+    line-height: .95;
+    letter-spacing: -.01em;
+    margin: 0;
+    user-select: none;
+    cursor: default;
+  }
+  .titel .zeile2 { display: block; padding-left: .9em; color: var(--kraft); }
+  .unterzeile { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; align-items: baseline; color: var(--dunst); max-width: 62ch; }
+  .countdown { color: var(--schnee); font-weight: 700; }
+  .kopf-knoepfe { display: flex; gap: .5rem; align-self: start; }
+
+  .knopf-leise {
+    font: inherit; font-size: .9rem; color: var(--dunst);
+    background: transparent; border: 1px solid rgba(169,194,182,.35); border-radius: 999px;
+    padding: .4rem .9rem; cursor: pointer;
+  }
+  .knopf-leise:hover { color: var(--schnee); border-color: var(--dunst); }
+
+  /* Werkzeugleiste */
+  .leiste { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; align-items: center; margin-bottom: 2.75rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .chip {
+    font: inherit; font-size: .95rem; cursor: pointer;
+    padding: .45rem .95rem; border-radius: 999px;
+    background: rgba(244,246,242,.06); color: var(--schnee);
+    border: 1px solid rgba(244,246,242,.18);
+  }
+  .chip[aria-pressed="true"] { background: var(--kraft); color: var(--tinte); border-color: var(--kraft); font-weight: 700; }
+  .sortierung { display: flex; align-items: center; gap: .5rem; color: var(--dunst); font-size: .95rem; }
+  .sortierung select {
+    font: inherit; color: var(--schnee); background: var(--tanne-tief);
+    border: 1px solid rgba(244,246,242,.18); border-radius: 8px; padding: .4rem .6rem;
+  }
+  .ueberrasch {
+    margin-left: auto;
+    font: inherit; font-weight: 700; cursor: pointer;
+    background: var(--gold); color: var(--tinte); border: 0; border-radius: 999px;
+    padding: .6rem 1.2rem;
+  }
+  .ueberrasch:hover { filter: brightness(1.06); }
+
+  /* Anhänger */
+  .raster {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 3.5rem 2rem;
+    padding-top: 1.5rem;
+  }
+  .anhaenger-wrap {
+    position: relative;
+    filter: drop-shadow(0 10px 14px rgba(0,0,0,.35));
+    transform: rotate(var(--dreh, 0deg));
+    transform-origin: 50% 0;
+    transition: transform .4s cubic-bezier(.3,1.6,.5,1);
+  }
+  .anhaenger-wrap::before { /* Kordel */
+    content: ""; position: absolute; left: 50%; top: -34px; width: 2px; height: 58px; margin-left: -1px;
+    background: repeating-linear-gradient(var(--siegel) 0 5px, var(--schnee) 5px 10px);
+    border-radius: 2px; z-index: 1;
+  }
+  .anhaenger-wrap.schwingt { animation: schwingen 1.1s cubic-bezier(.3,1.3,.5,1); }
+  @keyframes schwingen {
+    0% { transform: rotate(var(--dreh)); }
+    20% { transform: rotate(calc(var(--dreh) + 7deg)); }
+    45% { transform: rotate(calc(var(--dreh) - 5deg)); }
+    70% { transform: rotate(calc(var(--dreh) + 2deg)); }
+    100% { transform: rotate(var(--dreh)); }
+  }
+
+  .anhaenger {
+    position: relative;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.18), transparent 40%),
+      radial-gradient(circle at 80% 85%, rgba(120,80,30,.15), transparent 45%),
+      var(--kraft);
+    color: var(--tinte);
+    padding: 3.2rem 1.4rem 1.4rem;
+    min-height: 100%;
+    clip-path: polygon(22% 0, 78% 0, 100% 9%, 100% 100%, 0 100%, 0 9%);
+    -webkit-mask: radial-gradient(circle at 50% 22px, transparent 8px, #000 8.5px);
+            mask: radial-gradient(circle at 50% 22px, transparent 8px, #000 8.5px);
+    display: flex; flex-direction: column; gap: .7rem;
+  }
+  .anhaenger::after { /* Öse */
+    content: ""; position: absolute; left: 50%; top: 22px; width: 24px; height: 24px; margin: -12px 0 0 -12px;
+    border-radius: 50%; border: 3px solid rgba(43,32,22,.25);
+  }
+  /* Produktbild mit Fotoecken */
+  .bild-rahmen {
+    --ecke: #3a2c1f;
+    position: relative; margin: 0 0 .2rem;
+    background: #fbf8f2; padding: 9px;
+    box-shadow: 0 1px 1px rgba(43,32,22,.15), 0 4px 10px rgba(43,32,22,.18);
+  }
+  .bild-rahmen::after {
+    content: ""; position: absolute; inset: -2px; pointer-events: none;
+    background:
+      linear-gradient(135deg, var(--ecke) 0 15px, transparent 15.5px) top left / 50% 50% no-repeat,
+      linear-gradient(225deg, var(--ecke) 0 15px, transparent 15.5px) top right / 50% 50% no-repeat,
+      linear-gradient(45deg,  var(--ecke) 0 15px, transparent 15.5px) bottom left / 50% 50% no-repeat,
+      linear-gradient(315deg, var(--ecke) 0 15px, transparent 15.5px) bottom right / 50% 50% no-repeat;
+  }
+  .bild-rahmen img {
+    display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain;
+    background: #fff;
+  }
+  .sterne { color: #8a5a12; font-size: .95rem; letter-spacing: .12em; }
+  .sterne .leer { color: rgba(43,32,22,.22); }
+  .wunsch-titel { font-family: var(--serif); font-weight: 400; font-size: 1.55rem; line-height: 1.1; margin: 0; }
+  .wunsch-notiz { margin: 0; font-size: .98rem; color: #4a3a2a; }
+  .wunsch-meta { display: flex; flex-wrap: wrap; gap: .3rem 1rem; font-size: .95rem; font-weight: 700; }
+  .wunsch-meta .groesse { font-weight: 400; }
+  .shop { font-size: .95rem; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  .aktionen { margin-top: auto; padding-top: .6rem; display: flex; flex-direction: column; gap: .5rem; }
+
+  .knopf {
+    font: inherit; font-weight: 700; cursor: pointer;
+    background: var(--tanne); color: var(--schnee); border: 0; border-radius: 10px;
+    padding: .7rem 1rem; width: 100%;
+  }
+  .knopf:hover { background: #1b4537; }
+  .knopf.zweit { background: transparent; color: var(--tinte); box-shadow: inset 0 0 0 2px var(--tinte); }
+  .knopf.zweit:hover { background: rgba(43,32,22,.08); }
+  .link-knopf { font: inherit; font-size: .9rem; background: none; border: 0; padding: 0; color: var(--tinte); text-decoration: underline; cursor: pointer; align-self: flex-start; }
+
+  .vergeben-info { font-size: .95rem; }
+
+  /* Stempel */
+  .stempel {
+    position: absolute; left: 50%; top: 50%;
+    font-family: var(--sans); font-weight: 700; font-size: 1.35rem; letter-spacing: .14em;
+    background: rgba(251,248,242,.55);
+    color: var(--siegel); border: 3px double var(--siegel); border-radius: 6px;
+    padding: .2rem .55rem; transform: translate(-50%, -50%) rotate(-14deg); opacity: .9;
+    mix-blend-mode: multiply; pointer-events: none;
+  }
+  .stempel.neu { animation: stempeln .45s cubic-bezier(.2,1.4,.4,1) both; }
+  @keyframes stempeln { 0% { transform: translate(-50%, -50%) rotate(-14deg) scale(2.4); opacity: 0; } 100% { transform: translate(-50%, -50%) rotate(-14deg) scale(1); opacity: .9; } }
+  .anhaenger.ist-vergeben .bild-rahmen img { filter: grayscale(.6) opacity(.75); }
+  .anhaenger.ist-vergeben .wunsch-titel,
+  .anhaenger.ist-vergeben .wunsch-notiz { opacity: .6; }
+
+  /* Zusammenlegen */
+  .topf { display: flex; flex-direction: column; gap: .35rem; }
+  .topf-balken { height: 12px; background: rgba(43,32,22,.15); border-radius: 999px; overflow: hidden; }
+  .topf-fuell { height: 100%; background: var(--siegel); border-radius: 999px; transition: width .8s cubic-bezier(.2,.9,.3,1); }
+  .topf-text { font-size: .92rem; }
+  .topf-namen { font-size: .85rem; color: #5a4836; margin: 0; }
+
+  .leer-hinweis { grid-column: 1 / -1; color: var(--dunst); text-align: center; padding: 3rem 1rem; }
+
+  /* Fuß */
+  footer.fuss { margin-top: 5rem; color: var(--dunst); font-size: .95rem; max-width: 60ch; }
+  footer.fuss h2 { font-family: var(--serif); font-weight: 400; color: var(--schnee); font-size: 1.5rem; margin: 0 0 .5rem; }
+  footer.fuss p { margin: .4rem 0; }
+
+  /* Demo-Leiste */
+  .demo {
+    position: fixed; left: 50%; bottom: max(1rem, env(safe-area-inset-bottom)); transform: translateX(-50%);
+    z-index: 20; display: flex; align-items: center; gap: .6rem;
+    background: rgba(11,36,29,.92); backdrop-filter: blur(6px);
+    border: 1px solid rgba(244,246,242,.2); border-radius: 999px; padding: .35rem .4rem .35rem 1rem;
+    font-size: .9rem; color: var(--dunst); white-space: nowrap;
+  }
+  .demo .chip { font-size: .85rem; padding: .3rem .8rem; }
+
+  /* Dialoge */
+  dialog {
+    border: 0; border-radius: 14px; padding: 0; max-width: min(440px, calc(100vw - 2rem)); width: 100%;
+    background: var(--schnee); color: var(--tinte);
+    box-shadow: 0 30px 60px rgba(0,0,0,.45);
+  }
+  dialog::backdrop { background: rgba(5,18,14,.65); }
+  dialog form { padding: 1.6rem; display: flex; flex-direction: column; gap: 1rem; }
+  dialog h2 { font-family: var(--serif); font-weight: 400; font-size: 1.7rem; line-height: 1.1; margin: 0; }
+  dialog p { margin: 0; color: #4a4a40; font-size: .98rem; }
+  dialog label { display: flex; flex-direction: column; gap: .35rem; font-weight: 700; font-size: .95rem; }
+  dialog input {
+    font: inherit; font-weight: 400; padding: .7rem .8rem; border-radius: 10px;
+    border: 2px solid #c9cfc6; background: #fff; color: var(--tinte);
+  }
+  dialog input:focus { border-color: var(--tanne); outline: none; }
+  .betrag-chips { display: flex; gap: .4rem; flex-wrap: wrap; }
+  .betrag-chips button { font: inherit; padding: .35rem .8rem; border-radius: 999px; border: 2px solid #c9cfc6; background: #fff; cursor: pointer; }
+  .dialog-knoepfe { display: flex; gap: .6rem; justify-content: flex-end; margin-top: .4rem; }
+  .dialog-knoepfe .knopf { width: auto; padding: .7rem 1.2rem; }
+  .dialog-knoepfe .knopf.zweit { box-shadow: inset 0 0 0 2px #c9cfc6; }
+
+  /* Losmaschine */
+  dialog.los { max-width: min(400px, calc(100vw - 2rem)); }
+  .los-innen { padding: 1.6rem; display: flex; flex-direction: column; gap: 1rem; text-align: center; }
+  .los-fenster {
+    position: relative; height: var(--los-h); overflow: hidden; border-radius: 12px;
+    background: var(--kraft);
+    box-shadow: inset 0 0 0 3px var(--tinte);
+  }
+  .los-fenster::before, .los-fenster::after {
+    content: ""; position: absolute; left: 0; right: 0; height: 14%; z-index: 2; pointer-events: none;
+  }
+  .los-fenster::before { top: 0; background: linear-gradient(var(--kraft), rgba(214,185,140,0)); }
+  .los-fenster::after { bottom: 0; background: linear-gradient(rgba(214,185,140,0), var(--kraft)); }
+  .los-zeiger { position: absolute; top: 50%; z-index: 3; width: 0; height: 0; border: 11px solid transparent; margin-top: -11px; }
+  .los-zeiger.links { left: 0; border-left-color: var(--siegel); }
+  .los-zeiger.rechts { right: 0; border-right-color: var(--siegel); }
+  .los-band { will-change: transform; }
+  .los-feld { height: var(--los-h); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; padding: 0 2.2rem; }
+  .los-feld .bild-rahmen { width: 72%; }
+  .los-feld .los-titel { font-family: var(--serif); font-size: 1.2rem; line-height: 1.15; color: var(--tinte); }
+  .los-ergebnis { min-height: 1.6rem; color: #4a4a40; }
+  .los .dialog-knoepfe { justify-content: center; flex-wrap: wrap; }
+  .los .knopf.gold { background: var(--gold); color: var(--tinte); order: -1; flex-basis: 100%; }
+  .los .dialog-knoepfe .knopf.zweit { flex: 1; }
+
+  /* Hinweis-Toast */
+  .toast {
+    position: fixed; left: 50%; top: 1rem; transform: translate(-50%, -150%);
+    z-index: 30; background: var(--schnee); color: var(--tinte); font-weight: 700;
+    padding: .75rem 1.2rem; border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    transition: transform .35s cubic-bezier(.2,1.2,.4,1); max-width: calc(100vw - 2rem); text-align: center;
+  }
+  .toast.zeigen { transform: translate(-50%, 0); }
+
+  /* Schlitten */
+  .schlitten { position: fixed; z-index: 15; top: 18%; left: -260px; font-size: 3rem; pointer-events: none; white-space: nowrap; }
+  .schlitten.fliegt { animation: fliegen 5.5s linear forwards; }
+  @keyframes fliegen {
+    0% { transform: translate(0, 0) rotate(-4deg); }
+    50% { transform: translate(calc(50vw + 130px), -40px) rotate(3deg); }
+    100% { transform: translate(calc(100vw + 520px), 10px) rotate(-3deg); }
+  }
+
+  @media (max-width: 640px) {
+    header.kopf { grid-template-columns: 1fr; }
+    .kopf-knoepfe { order: -1; justify-self: end; }
+    .ueberrasch { margin-left: 0; width: 100%; }
+    .raster { gap: 3.2rem; }
+    .demo { font-size: .82rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .anhaenger-wrap, .anhaenger-wrap.schwingt, .stempel.neu, .topf-fuell, .toast { animation: none !important; transition: none !important; }
+  }
+
+  /* Startseite ohne Link */
+  .start { max-width: 46ch; margin: 2rem 0 0; display: flex; flex-direction: column; gap: 1rem; align-items: flex-start; }
+  .start h2 { font-family: var(--serif); font-weight: 400; font-size: 2rem; margin: 0; }
+  .start p { margin: 0; color: var(--dunst); }
+
+  /* Besitzer-Werkzeuge */
+  .knopf-gold { font: inherit; font-weight: 700; cursor: pointer; background: var(--gold); color: var(--tinte); border: 0; border-radius: 999px; padding: .6rem 1.2rem; }
+  .knopf-gold:hover { filter: brightness(1.06); }
+  .knopf-rand { font: inherit; font-weight: 700; cursor: pointer; background: transparent; color: var(--schnee); border: 2px solid rgba(244,246,242,.4); border-radius: 999px; padding: .5rem 1.1rem; }
+  .knopf-rand:hover { border-color: var(--schnee); }
+  .besitzer-knoepfe { margin-left: auto; display: flex; gap: .5rem; flex-wrap: wrap; }
+  .neu-karte {
+    font: inherit; cursor: pointer; min-height: 320px; width: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .6rem;
+    border: 2px dashed rgba(214,185,140,.6); border-radius: 14px; background: rgba(214,185,140,.06);
+    color: var(--kraft); font-weight: 700;
+  }
+  .neu-karte:hover { background: rgba(214,185,140,.12); }
+  .neu-karte .plus { font-family: var(--serif); font-size: 3.2rem; line-height: 1; }
+  .fuss-aktionen { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+  .fuss-aktionen button { font: inherit; font-size: .95rem; color: var(--dunst); background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .fuss-aktionen button:hover { color: var(--schnee); }
+
+  /* Bearbeiten-Dialog */
+  dialog.bearbeiten { max-width: min(520px, calc(100vw - 1.5rem)); max-height: calc(100dvh - 1.5rem); overflow: auto; }
+  .zweispaltig { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  dialog textarea { font: inherit; font-weight: 400; padding: .7rem .8rem; border-radius: 10px; border: 2px solid #c9cfc6; background: #fff; color: var(--tinte); resize: vertical; min-height: 4.5rem; }
+  dialog textarea:focus { border-color: var(--tanne); outline: none; }
+  fieldset.prio { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .35rem; }
+  fieldset.prio legend { font-weight: 700; font-size: .95rem; padding: 0; margin-bottom: .35rem; }
+  .prio-wahl { display: flex; gap: .4rem; flex-wrap: wrap; }
+  .prio-wahl label { flex-direction: row; font-weight: 400; }
+  .prio-wahl input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .prio-wahl span { padding: .45rem .8rem; border-radius: 999px; border: 2px solid #c9cfc6; background: #fff; cursor: pointer; white-space: nowrap; }
+  .prio-wahl input:checked + span { background: var(--tanne); border-color: var(--tanne); color: var(--schnee); font-weight: 700; }
+  .prio-wahl input:focus-visible + span { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .bild-feld { display: grid; grid-template-columns: 140px 1fr; gap: 1rem; align-items: start; }
+  .bild-feld .bild-rahmen { padding: 6px; }
+  .bild-knoepfe { display: flex; flex-direction: column; gap: .5rem; align-items: flex-start; }
+  .bild-knoepfe .datei { position: relative; overflow: hidden; display: inline-block; }
+  .bild-knoepfe .datei input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .knopf-klein { font: inherit; font-size: .92rem; font-weight: 700; cursor: pointer; padding: .45rem .9rem; border-radius: 999px; border: 2px solid var(--tanne); background: #fff; color: var(--tanne); display: inline-block; }
+  .bild-hinweis { font-size: .85rem; color: #5b5b50; }
+  .haken { flex-direction: row !important; align-items: center; gap: .6rem !important; font-weight: 400 !important; }
+  .haken input { width: 1.2rem; height: 1.2rem; accent-color: var(--tanne); }
+  .dialog-knoepfe .loeschen { margin-right: auto; background: none; color: var(--siegel); box-shadow: none; padding-left: 0; }
+  .dialog-knoepfe .loeschen:hover { background: none; text-decoration: underline; }
+  .fehler-text { color: var(--siegel); font-weight: 700; font-size: .95rem; }
+  @media (max-width: 480px) {
+    .zweispaltig, .bild-feld { grid-template-columns: 1fr; }
+    .bild-feld .bild-rahmen { max-width: 220px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="schnee" class="fx" aria-hidden="true"></canvas>
+<canvas id="konfetti" class="fx" aria-hidden="true"></canvas>
+
+<div class="page">
+  <header class="kopf">
+    <h1 class="titel" id="titel">Janis'<span class="zeile2">Wunschzettel</span></h1>
+    <div class="kopf-knoepfe">
+      <button class="knopf-leise" id="schnee-knopf" type="button" aria-pressed="true">Schnee aus</button>
+    </div>
+    <div class="unterzeile">
+      <span class="countdown" id="countdown"></span>
+      <span id="intro"></span>
+    </div>
+  </header>
+
+  <section class="start" id="start" hidden>
+    <h2 id="start-titel">Hier fehlt der Link</h2>
+    <p id="start-text">Öffne den Wunschzettel über den Link, den Janis dir geschickt hat.</p>
+    <button class="knopf-rand" type="button" id="start-anmelden">Ich bin Janis: anmelden</button>
+  </section>
+
+  <div class="leiste" id="leiste" role="group" aria-label="Wünsche filtern und sortieren" hidden>
+    <div class="chips" id="filter-chips"></div>
+    <label class="sortierung">Sortieren
+      <select id="sortierung">
+        <option value="prio">Wichtigste zuerst</option>
+        <option value="preis-auf">Günstigste zuerst</option>
+        <option value="preis-ab">Teuerste zuerst</option>
+      </select>
+    </label>
+    <button class="ueberrasch" id="ueberrasch" type="button">Ich kann mich nicht entscheiden</button>
+    <div class="besitzer-knoepfe" id="besitzer-knoepfe" hidden>
+      <button class="knopf-rand" type="button" id="link-teilen">Link teilen</button>
+      <button class="knopf-gold" type="button" id="neuer-wunsch">Neuer Wunsch</button>
+    </div>
+  </div>
+
+  <main class="raster" id="raster" aria-live="polite"></main>
+
+  <footer class="fuss" id="fuss" hidden>
+    <h2>So funktioniert's</h2>
+    <p>Tipp bei einem Wunsch auf „Ich besorge das“. Alle anderen sehen dann, dass er vergeben ist. Janis sieht es nicht.</p>
+    <p>Teure Wünsche könnt ihr zusammen schenken. Tragt ein, wie viel ihr beisteuert. Das Geld sammelt ihr unter euch.</p>
+    <div class="fuss-aktionen" id="fuss-aktionen"></div>
+  </footer>
+</div>
+
+<div class="demo" id="demo-leiste" role="group" aria-label="Demo-Ansicht wählen" hidden>
+  <span>Demo · Ansicht:</span>
+  <button class="chip" type="button" data-ansicht="familie" aria-pressed="true">Familie</button>
+  <button class="chip" type="button" data-ansicht="janis" aria-pressed="false">Janis</button>
+</div>
+
+<dialog id="dlg-reservieren">
+  <form method="dialog">
+    <h2 id="dlg-res-titel"></h2>
+    <p>Die anderen sehen, dass du das besorgst. Janis sieht davon nichts.</p>
+    <label>Dein Name
+      <input name="name" required maxlength="30" autocomplete="given-name" placeholder="z. B. Mama">
+    </label>
+    <div class="dialog-knoepfe">
+      <button class="knopf zweit" value="abbrechen" formnovalidate>Abbrechen</button>
+      <button class="knopf" value="ok">Reservieren</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-beitrag">
+  <form method="dialog">
+    <h2 id="dlg-bei-titel"></h2>
+    <p id="dlg-bei-text"></p>
+    <label>Dein Name
+      <input name="name" required maxlength="30" autocomplete="given-name" placeholder="z. B. Oma">
+    </label>
+    <label>Dein Beitrag in Euro
+      <input name="betrag" type="number" inputmode="numeric" min="1" step="1" required placeholder="20">
+    </label>
+    <div class="betrag-chips" id="betrag-chips">
+      <button type="button" data-betrag="10">10 €</button>
+      <button type="button" data-betrag="20">20 €</button>
+      <button type="button" data-betrag="50">50 €</button>
+    </div>
+    <div class="dialog-knoepfe">
+      <button class="knopf zweit" value="abbrechen" formnovalidate>Abbrechen</button>
+      <button class="knopf" value="ok">Beitrag eintragen</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-los" class="los" aria-labelledby="los-ueberschrift">
+  <div class="los-innen">
+    <h2 id="los-ueberschrift">Die Losmaschine</h2>
+    <p id="los-text">Sie zieht einen freien Wunsch für dich.</p>
+    <div class="los-fenster" aria-hidden="true">
+      <span class="los-zeiger links"></span><span class="los-zeiger rechts"></span>
+      <div class="los-band" id="los-band"></div>
+    </div>
+    <div class="los-ergebnis" id="los-ergebnis" aria-live="polite"></div>
+    <div class="dialog-knoepfe">
+      <button class="knopf zweit" type="button" id="los-schliessen">Schließen</button>
+      <button class="knopf zweit" type="button" id="los-nochmal">Nochmal</button>
+      <button class="knopf gold" type="button" id="los-nehmen" hidden>Ich besorge das</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dlg-bearbeiten" class="bearbeiten" aria-labelledby="bea-titel">
+  <form method="dialog" id="bea-form" novalidate>
+    <h2 id="bea-titel">Neuer Wunsch</h2>
+    <label>Was wünschst du dir?
+      <input name="titel" required maxlength="80" placeholder="z. B. Noise-Cancelling-Kopfhörer">
+    </label>
+    <label>Beschreibung
+      <textarea name="notiz" maxlength="300" placeholder="Farbe, Modell, worauf es ankommt"></textarea>
+    </label>
+    <div class="zweispaltig">
+      <label>Preis ca. in Euro
+        <input name="preis" type="number" inputmode="decimal" min="0" max="100000" step="1" required placeholder="50">
+      </label>
+      <label>Größe oder Variante
+        <input name="groesse" maxlength="40" placeholder="z. B. Größe M">
+      </label>
+    </div>
+    <fieldset class="prio">
+      <legend>Wie wichtig?</legend>
+      <div class="prio-wahl">
+        <label><input type="radio" name="prio" value="1"><span>★ Nett</span></label>
+        <label><input type="radio" name="prio" value="2" checked><span>★★ Gern</span></label>
+        <label><input type="radio" name="prio" value="3"><span>★★★ Herzenswunsch</span></label>
+      </div>
+    </fieldset>
+    <label>Link zum Shop
+      <input name="link" type="url" inputmode="url" maxlength="500" placeholder="https://…">
+    </label>
+    <div class="bild-feld">
+      <div class="bild-rahmen"><img id="bea-vorschau" alt=""></div>
+      <div class="bild-knoepfe">
+        <span class="knopf-klein datei">Bild hochladen<input type="file" accept="image/*" id="bea-datei" aria-label="Bild hochladen"></span>
+        <button type="button" class="link-knopf" id="bea-bild-weg" hidden>Bild entfernen</button>
+        <label>Oder Link zum Bild
+          <input name="bildlink" type="url" inputmode="url" maxlength="800" placeholder="https://…/bild.jpg">
+        </label>
+        <span class="bild-hinweis">Du kannst ein Bild auch einfach mit Strg+V oder ⌘+V einfügen.</span>
+      </div>
+    </div>
+    <label class="haken"><input type="checkbox" name="zusammen"> Teurer Wunsch: Familie kann zusammenlegen</label>
+    <p class="fehler-text" id="bea-fehler" role="alert" hidden></p>
+    <div class="dialog-knoepfe">
+      <button class="knopf loeschen" type="button" id="bea-loeschen" hidden>Löschen</button>
+      <button class="knopf zweit" value="abbrechen" formnovalidate>Abbrechen</button>
+      <button class="knopf" value="ok" id="bea-speichern">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="schlitten" id="schlitten" aria-hidden="true">🦌🦌🛷</div>
+
+<script>
+"use strict";
+
+/* ==================================================================
+   EINSTELLUNGEN
+   Trag hier den firebaseConfig-Block aus der Firebase-Konsole ein.
+   Steht hier null, läuft die Seite im Demo-Modus.
+=================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCLCLjTt5HLrxg3CqvUXNfq42MZA_NTo3I",
+  authDomain: "wunschliste-4443d.firebaseapp.com",
+  projectId: "wunschliste-4443d",
+  storageBucket: "wunschliste-4443d.firebasestorage.app",
+  messagingSenderId: "60011291004",
+  appId: "1:60011291004:web:169d1433e5947a0abd44f9"
+};
+// Mit ?demo=1 am Ende der Adresse läuft die Seite trotzdem im Demo-Modus.
+const FIREBASE_VERSION = "13.2.0";
+
+/* ------------------------------------------------------------------
+   Platzhalterbilder und Demo-Wünsche
+------------------------------------------------------------------- */
+const sechseck = (x, y, r, farbe) => `<polygon fill="${farbe}" points="${[0,1,2,3,4,5].map(i => `${(x + r * Math.cos(i * Math.PI / 3)).toFixed(1)},${(y + r * Math.sin(i * Math.PI / 3)).toFixed(1)}`).join(" ")}"/>`;
+const SKIZZEN = {
+  kopfhoerer: `<rect width="240" height="180" fill="#eaf0ec"/><path d="M68 112V88a52 52 0 0 1 104 0v24" fill="none" stroke="#2b2016" stroke-width="10" stroke-linecap="round"/><rect x="50" y="94" width="36" height="56" rx="15" fill="#123329"/><rect x="154" y="94" width="36" height="56" rx="15" fill="#123329"/><rect x="74" y="102" width="9" height="40" rx="4.5" fill="#2e5a4b"/><rect x="157" y="102" width="9" height="40" rx="4.5" fill="#2e5a4b"/>`,
+  buch: `<rect width="240" height="180" fill="#f4eee4"/><rect x="76" y="24" width="94" height="134" rx="4" fill="#123329"/><rect x="76" y="24" width="13" height="134" fill="#0b241d"/><rect x="101" y="48" width="56" height="9" rx="2" fill="#e6b84f"/><rect x="101" y="64" width="40" height="6" rx="2" fill="#d6b98c"/><circle cx="129" cy="114" r="17" fill="none" stroke="#e6b84f" stroke-width="4"/><circle cx="129" cy="114" r="5" fill="#e6b84f"/>`,
+  jacke: `<rect width="240" height="180" fill="#ecf0f2"/><path d="M96 26l24 12 24-12 40 20 16 72-22 6-8-34v68H70V90l-8 34-22-6 16-72z" fill="#b02a30"/><path d="M96 26l24 18 24-18" fill="none" stroke="#7d1c21" stroke-width="5"/><line x1="120" y1="44" x2="120" y2="158" stroke="#2b2016" stroke-width="3"/><rect x="70" y="128" width="100" height="6" fill="#f4f6f2" opacity=".85"/>`,
+  spiel: `<rect width="240" height="180" fill="#f2eee3"/><rect x="34" y="38" width="172" height="112" rx="6" fill="#2f6b55"/><rect x="44" y="48" width="152" height="92" rx="4" fill="#3f8268"/>${sechseck(88,80,17,"#e6b84f")}${sechseck(114,95,17,"#d6b98c")}${sechseck(140,80,17,"#6fae8f")}${sechseck(114,65,17,"#b02a30")}${sechseck(140,110,17,"#e6b84f")}${sechseck(88,110,17,"#123329")}${sechseck(166,95,17,"#d6b98c")}`,
+  bouldern: `<rect width="240" height="180" fill="#e7e1d7"/><path d="M30 170L70 10h150v160z" fill="#cdc3b3"/><ellipse cx="100" cy="50" rx="12" ry="8" fill="#b02a30" transform="rotate(-20 100 50)"/><ellipse cx="150" cy="40" rx="9" ry="13" fill="#e6b84f"/><ellipse cx="185" cy="80" rx="14" ry="9" fill="#123329" transform="rotate(25 185 80)"/><ellipse cx="120" cy="100" rx="10" ry="10" fill="#6fae8f"/><ellipse cx="90" cy="140" rx="15" ry="8" fill="#e6b84f" transform="rotate(10 90 140)"/><ellipse cx="160" cy="135" rx="9" ry="12" fill="#b02a30"/><ellipse cx="195" cy="150" rx="8" ry="8" fill="#123329"/>`,
+  pfanne: `<rect width="240" height="180" fill="#f1ede6"/><rect x="146" y="82" width="84" height="16" rx="8" fill="#2b2016" transform="rotate(-8 146 90)"/><circle cx="100" cy="94" r="62" fill="#2b2016"/><circle cx="100" cy="94" r="50" fill="#3d3127"/><path d="M78 92c-8-20 22-30 34-18 18-4 24 20 10 30-6 14-38 12-44-12z" fill="#fbf8f2"/><circle cx="98" cy="92" r="11" fill="#e6b84f"/>`,
+  kaffee: `<rect width="240" height="180" fill="#f3eee5"/><path d="M82 34h76l8 128H74z" fill="#d6b98c"/><path d="M82 34h76l-4 14H86z" fill="#b89a6c"/><rect x="92" y="78" width="56" height="44" rx="3" fill="#123329"/><ellipse cx="120" cy="100" rx="11" ry="15" fill="#6b4a2b" transform="rotate(25 120 100)"/><path d="M114 90q12 10 12 20" fill="none" stroke="#3a2718" stroke-width="2.5" transform="rotate(25 120 100)"/>`,
+  kino: `<rect width="240" height="180" fill="#f3eee6"/><g transform="rotate(-10 120 90)"><rect x="40" y="56" width="120" height="58" rx="6" fill="#b02a30"/><circle cx="40" cy="85" r="10" fill="#f3eee6"/><circle cx="160" cy="85" r="10" fill="#f3eee6"/><line x1="128" y1="62" x2="128" y2="108" stroke="#f3eee6" stroke-width="2" stroke-dasharray="4 4"/></g><g transform="rotate(8 140 100)"><rect x="80" y="76" width="120" height="58" rx="6" fill="#e6b84f"/><circle cx="80" cy="105" r="10" fill="#f3eee6"/><circle cx="200" cy="105" r="10" fill="#f3eee6"/><path d="M128 92l5 10 11 1-8 7 3 11-11-6-11 6 3-11-8-7 11-1z" fill="#2b2016"/></g>`,
+  geschenk: `<rect width="240" height="180" fill="#f5f1ea"/><rect x="72" y="72" width="96" height="76" rx="3" fill="none" stroke="#b9a78c" stroke-width="4"/><rect x="64" y="58" width="112" height="18" rx="3" fill="none" stroke="#b9a78c" stroke-width="4"/><line x1="120" y1="58" x2="120" y2="148" stroke="#b9a78c" stroke-width="4"/><path d="M120 58c-10-22-34-18-26-4 4 6 16 4 26 4 10 0 22 2 26-4 8-14-16-18-26 4z" fill="none" stroke="#b9a78c" stroke-width="4"/>`
+};
+const skizze = name => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180">${SKIZZEN[name]}</svg>`);
+const ERSATZBILD = skizze("geschenk");
+
+const DEMO_WUENSCHE = [
+  { id: "w1", bild: skizze("kopfhoerer"), titel: "Noise-Cancelling-Kopfhörer", notiz: "Over-Ear, für Bibliothek und Bahn. Schwarz oder Dunkelgrün.", preis: 299, prio: 3, link: "https://example.com", zusammen: true },
+  { id: "w2", bild: skizze("buch"), titel: "Thinking, Fast and Slow", notiz: "Daniel Kahneman. Gern die englische Taschenbuchausgabe.", preis: 18, prio: 2, link: "https://example.com" },
+  { id: "w3", bild: skizze("jacke"), titel: "Laufjacke für den Winter", notiz: "Wind- und wasserabweisend, mit Reflektoren.", preis: 80, prio: 2, groesse: "Größe M", link: "https://example.com" },
+  { id: "w4", bild: skizze("spiel"), titel: "Brettspiel Cascadia", notiz: "Für die Spieleabende nach Weihnachten.", preis: 35, prio: 2, link: "https://example.com" },
+  { id: "w5", bild: skizze("bouldern"), titel: "Ein Tag Bouldern zusammen", notiz: "Kein Ding, sondern Zeit. Eintritt plus Leihschuhe.", preis: 30, prio: 3 },
+  { id: "w6", bild: skizze("pfanne"), titel: "Gusseisenpfanne", notiz: "28 cm, vorgebrannt. Die hält dann ewig.", preis: 60, prio: 1, link: "https://example.com" },
+  { id: "w7", bild: skizze("kaffee"), titel: "Kaffeebohnen aus einer Berliner Rösterei", notiz: "Filterröstung, ganze Bohne.", preis: 15, prio: 1 },
+  { id: "w8", bild: skizze("kino"), titel: "Kinoabend", notiz: "Zwei Karten, Film suchen wir zusammen aus.", preis: 25, prio: 1 }
+];
+
+/* ------------------------------------------------------------------
+   Kleine Helfer
+------------------------------------------------------------------- */
+const $ = (s, el = document) => el.querySelector(s);
+const sicherLesen = (k, fallback) => { try { const v = localStorage.getItem(k); return v === null ? fallback : JSON.parse(v); } catch { return fallback; } };
+const sicherSchreiben = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const euro = n => new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
+const el = (tag, attrs = {}, ...kinder) => {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") e.className = v;
+    else if (k === "text") e.textContent = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v);
+  }
+  for (const kind of kinder) if (kind) e.append(kind);
+  return e;
+};
+const anhaengen = (eltern, ...kinder) => { for (const k of kinder) if (k) eltern.append(k); };
+const reduziert = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const zufallsId = (n = 20) => { const a = new Uint8Array(n); crypto.getRandomValues(a); return Array.from(a, b => "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 56]).join(""); };
+const istSicherUrl = u => typeof u === "string" && /^https:\/\//i.test(u);
+
+function geraeteId() {
+  let id = sicherLesen("wl_geraet", null);
+  if (!id) { id = zufallsId(16); sicherSchreiben("wl_geraet", id); }
+  return id;
+}
+
+/* ------------------------------------------------------------------
+   Datenschicht, Variante 1: Demo (speichert im Browser)
+------------------------------------------------------------------- */
+function demoSpeicher() {
+  const ich = geraeteId();
+  let daten = sicherLesen("wl_demo2", null) || { wuensche: DEMO_WUENSCHE, reservierungen: {}, beitraege: [] };
+  const hoerer = new Set();
+  const melden = () => { sicherSchreiben("wl_demo2", daten); hoerer.forEach(f => f(daten)); };
+  return {
+    modus: "demo", ich, istBesitzer: false,
+    abonnieren(f) { hoerer.add(f); f(daten); },
+    async reservieren(id, name) {
+      if (daten.reservierungen[id]) throw new Error("Das hat gerade jemand anderes reserviert.");
+      daten.reservierungen[id] = { name, von: ich };
+      melden();
+    },
+    async freigeben(id) { if (daten.reservierungen[id]?.von === ich) { delete daten.reservierungen[id]; melden(); } },
+    async beitragen(wunsch, name, betrag) { daten.beitraege.push({ id: zufallsId(10), wunsch, name, betrag, von: ich, zeit: Date.now() }); melden(); },
+    async beitragLoeschen(bid) { daten.beitraege = daten.beitraege.filter(b => b.id !== bid); melden(); },
+    async wunschSpeichern(w) {
+      if (w.id) daten.wuensche = daten.wuensche.map(x => x.id === w.id ? w : x);
+      else daten.wuensche = [...daten.wuensche, { ...w, id: zufallsId(10) }];
+      melden();
+    },
+    async wunschLoeschen(id) {
+      daten.wuensche = daten.wuensche.filter(w => w.id !== id);
+      delete daten.reservierungen[id];
+      melden();
+    }
+  };
+}
+
+/* ------------------------------------------------------------------
+   Datenschicht, Variante 2: Firebase
+------------------------------------------------------------------- */
+async function firebaseStarten(config) {
+  const basis = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
+  const [appM, authM, fs] = await Promise.all([
+    import(basis + "firebase-app.js"), import(basis + "firebase-auth.js"), import(basis + "firebase-firestore.js")
+  ]);
+  const app = appM.initializeApp(config);
+  const auth = authM.getAuth(app);
+  const db = fs.getFirestore(app);
+  try { await authM.getRedirectResult(auth); } catch (e) { console.warn(e); }
+  let nutzer = await new Promise(r => { const ab = authM.onAuthStateChanged(auth, u => { ab(); r(u); }); });
+  if (!nutzer) nutzer = (await authM.signInAnonymously(auth)).user;
+  return {
+    auth, db, fs, authM,
+    get nutzer() { return auth.currentUser; },
+    istGoogle() { return !!auth.currentUser && !auth.currentUser.isAnonymous; },
+    async anmelden() {
+      const provider = new authM.GoogleAuthProvider();
+      try { await authM.signInWithPopup(auth, provider); }
+      catch (e) {
+        if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") return authM.signInWithRedirect(auth, provider);
+        if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") return;
+        throw e;
+      }
+    },
+    async abmelden() { await authM.signOut(auth); await authM.signInAnonymously(auth); }
+  };
+}
+
+function firebaseSpeicher(fb, lid, istBesitzer) {
+  const { db, fs } = fb;
+  const ich = fb.nutzer.uid;
+  const pfad = (...teile) => fs.doc(db, "listen", lid, ...teile);
+  const sammlung = name => fs.collection(db, "listen", lid, name);
+  const daten = { wuensche: [], reservierungen: {}, beitraege: [] };
+  const hoerer = new Set();
+  const melden = () => hoerer.forEach(f => f(daten));
+  const fehler = e => { console.error(e); hinweis("Verbindung zur Datenbank gestört. Lade die Seite neu."); };
+
+  fs.onSnapshot(sammlung("wuensche"), snap => {
+    daten.wuensche = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    melden();
+  }, fehler);
+  if (!istBesitzer) {
+    fs.onSnapshot(sammlung("reservierungen"), snap => {
+      daten.reservierungen = Object.fromEntries(snap.docs.map(d => { const x = d.data(); return [d.id, { name: x.name, von: x.uid }]; }));
+      melden();
+    }, fehler);
+    fs.onSnapshot(sammlung("beitraege"), snap => {
+      daten.beitraege = snap.docs.map(d => { const x = d.data(); return { id: d.id, wunsch: x.wunsch, name: x.name, betrag: x.betrag, von: x.uid, zeit: x.zeit?.toMillis?.() || 0 }; });
+      melden();
+    }, fehler);
+  }
+
+  const sauber = w => {
+    const o = { titel: w.titel, preis: w.preis, prio: w.prio, zusammen: !!w.zusammen };
+    for (const k of ["notiz", "groesse", "link", "bild"]) if (w[k]) o[k] = w[k];
+    return o;
+  };
+
+  return {
+    modus: "live", ich, istBesitzer,
+    abonnieren(f) { hoerer.add(f); f(daten); },
+    async reservieren(id, name) {
+      try { await fs.setDoc(pfad("reservierungen", id), { name, uid: ich, zeit: fs.serverTimestamp() }); }
+      catch (e) { if (e.code === "permission-denied") throw new Error("Das hat gerade jemand anderes reserviert."); throw e; }
+    },
+    async freigeben(id) { await fs.deleteDoc(pfad("reservierungen", id)); },
+    async beitragen(wunsch, name, betrag) { await fs.addDoc(sammlung("beitraege"), { wunsch, name, betrag, uid: ich, zeit: fs.serverTimestamp() }); },
+    async beitragLoeschen(bid) { await fs.deleteDoc(pfad("beitraege", bid)); },
+    async wunschSpeichern(w) {
+      if (w.id) await fs.setDoc(pfad("wuensche", w.id), { ...sauber(w), geaendert: fs.serverTimestamp() });
+      else await fs.addDoc(sammlung("wuensche"), { ...sauber(w), geaendert: fs.serverTimestamp() });
+    },
+    async wunschLoeschen(id) {
+      await fs.deleteDoc(pfad("wuensche", id));
+      try { await fs.deleteDoc(pfad("reservierungen", id)); } catch {}
+    }
+  };
+}
+
+/* ------------------------------------------------------------------
+   Zustand
+------------------------------------------------------------------- */
+let speicher = null, fb = null, listenId = null;
+const zustand = {
+  wuensche: [], reservierungen: {}, beitraege: [],
+  ansicht: "familie", filter: "alle", sortierung: "prio", neuGestempelt: null
+};
+const istJanisAnsicht = () => zustand.ansicht === "janis";
+const istVorschau = () => zustand.ansicht === "familie-vorschau";
+const darfBearbeiten = () => istJanisAnsicht() && (speicher?.modus === "demo" || speicher?.istBesitzer);
+
+const FILTER = [
+  { id: "alle", text: "Alle", passt: () => true },
+  { id: "klein", text: "Bis 25 €", passt: w => w.preis <= 25 },
+  { id: "mittel", text: "25 bis 75 €", passt: w => w.preis > 25 && w.preis <= 75 },
+  { id: "gross", text: "Über 75 €", passt: w => w.preis > 75 },
+  { id: "frei", text: "Noch frei", passt: w => !istErledigt(w), nurFamilie: true }
+];
+const beitraegeZu = id => zustand.beitraege.filter(b => b.wunsch === id).sort((a, b) => a.zeit - b.zeit);
+const summe = id => beitraegeZu(id).reduce((s, b) => s + b.betrag, 0);
+const istErledigt = w => w.zusammen ? summe(w.id) >= w.preis : !!zustand.reservierungen[w.id];
+
+/* ------------------------------------------------------------------
+   Darstellung
+------------------------------------------------------------------- */
+function sterne(n) {
+  const s = el("span", { class: "sterne", role: "img", "aria-label": `Wichtigkeit ${n} von 3` });
+  for (let i = 1; i <= 3; i++) s.append(el("span", { class: i <= n ? "" : "leer", "aria-hidden": "true", text: "★" }));
+  return s;
+}
+
+function bildRahmen(w) {
+  const quelle = w.bild && (istSicherUrl(w.bild) || /^data:image\//.test(w.bild)) ? w.bild : ERSATZBILD;
+  const img = el("img", { src: quelle, alt: quelle === ERSATZBILD ? "" : w.titel, loading: "lazy", decoding: "async", referrerpolicy: "no-referrer" });
+  img.addEventListener("error", () => { if (img.src !== ERSATZBILD) { img.src = ERSATZBILD; img.alt = ""; } }, { once: true });
+  return el("div", { class: "bild-rahmen" }, img);
+}
+
+function karte(w, index) {
+  const familie = !istJanisAnsicht();
+  const res = zustand.reservierungen[w.id];
+  const gesammelt = summe(w.id);
+  const erledigt = istErledigt(w);
+  const ich = speicher.ich;
+
+  const a = el("article", { class: "anhaenger" + (familie && erledigt ? " ist-vergeben" : ""), "aria-labelledby": "t-" + w.id });
+  const rahmen = bildRahmen(w);
+  anhaengen(a,
+    rahmen,
+    sterne(w.prio),
+    el("h3", { class: "wunsch-titel", id: "t-" + w.id, text: w.titel }),
+    w.notiz ? el("p", { class: "wunsch-notiz", text: w.notiz }) : null,
+    el("div", { class: "wunsch-meta" },
+      el("span", { text: "ca. " + euro(w.preis) }),
+      w.groesse ? el("span", { class: "groesse", text: w.groesse }) : null,
+      !familie && w.zusammen ? el("span", { class: "groesse", text: "zum Zusammenlegen" }) : null
+    ),
+    istSicherUrl(w.link) ? el("a", { class: "shop", href: w.link, target: "_blank", rel: "noopener noreferrer", text: "Im Shop ansehen" }) : null
+  );
+
+  const aktionen = el("div", { class: "aktionen" });
+  if (istVorschau()) {
+    // Janis sieht die Familienansicht ohne Reservierungen und ohne Knöpfe
+  } else if (familie && w.zusammen) {
+    const anteil = Math.min(100, Math.round(gesammelt / Math.max(1, w.preis) * 100));
+    const liste = beitraegeZu(w.id);
+    aktionen.append(el("div", { class: "topf" },
+      el("div", { class: "topf-balken", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(w.preis), "aria-valuenow": String(gesammelt), "aria-label": "Gesammelt" },
+        el("div", { class: "topf-fuell", style: `width:${anteil}%` })),
+      el("span", { class: "topf-text", text: erledigt ? `${euro(gesammelt)} zusammen. Geschafft!` : `${euro(gesammelt)} von ${euro(w.preis)} zusammen` }),
+      liste.length ? el("p", { class: "topf-namen", text: "Dabei: " + [...new Set(liste.map(b => b.name))].join(", ") }) : null
+    ));
+    if (!erledigt) aktionen.append(el("button", { class: "knopf", type: "button", text: "Etwas beisteuern", onclick: () => beitragDialog(w) }));
+    const meine = liste.filter(b => b.von === ich);
+    if (meine.length) aktionen.append(el("button", { class: "link-knopf", type: "button", text: "Meinen letzten Beitrag zurücknehmen", onclick: () => ausfuehren(() => speicher.beitragLoeschen(meine[meine.length - 1].id)) }));
+  } else if (familie && res) {
+    aktionen.append(el("span", { class: "vergeben-info", text: res.von === ich ? "Du besorgst das." : `${res.name} besorgt das.` }));
+    if (res.von === ich) aktionen.append(el("button", { class: "link-knopf", type: "button", text: "Doch nicht", onclick: () => freigeben(w) }));
+  } else if (familie) {
+    aktionen.append(el("button", { class: "knopf", type: "button", text: "Ich besorge das", onclick: () => reservierDialog(w) }));
+  } else if (darfBearbeiten()) {
+    aktionen.append(el("button", { class: "knopf zweit", type: "button", text: "Bearbeiten", onclick: () => bearbeitenDialog(w) }));
+  }
+  if (aktionen.childNodes.length) a.append(aktionen);
+
+  if (familie && erledigt) {
+    rahmen.append(el("span", { class: "stempel" + (zustand.neuGestempelt === w.id ? " neu" : ""), "aria-hidden": "true", text: w.zusammen ? "KOMPLETT" : "VERGEBEN" }));
+  }
+
+  const dreh = [-2.2, 1.6, -1, 2.4, -1.8, 0.9, 2, -1.4][index % 8];
+  return el("div", { class: "anhaenger-wrap", "data-id": w.id, style: `--dreh:${dreh}deg` }, a);
+}
+
+function zeichnen() {
+  const familie = !istJanisAnsicht();
+  if (!familie && zustand.filter === "frei") zustand.filter = "alle";
+
+  const chips = $("#filter-chips");
+  chips.replaceChildren();
+  for (const f of FILTER) {
+    if (f.nurFamilie && !familie) continue;
+    chips.append(el("button", { class: "chip", type: "button", "aria-pressed": String(zustand.filter === f.id), text: f.text,
+      onclick: () => { zustand.filter = f.id; zeichnen(); } }));
+  }
+
+  $("#intro").textContent = istVorschau()
+    ? "Vorschau: So sieht deine Familie den Wunschzettel. Reservierungen bleiben für dich trotzdem unsichtbar."
+    : familie
+    ? "Such dir etwas aus und reservier es. So landet nichts doppelt unterm Baum."
+    : "Das ist deine Ansicht. Reservierungen bleiben hier unsichtbar, damit die Überraschung hält.";
+  $("#ueberrasch").hidden = !familie || istVorschau();
+  $("#besitzer-knoepfe").hidden = !darfBearbeiten();
+  document.querySelectorAll("#demo-leiste .chip").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.ansicht === zustand.ansicht)));
+  fussAktionen();
+
+  const filter = FILTER.find(f => f.id === zustand.filter) || FILTER[0];
+  const liste = zustand.wuensche.filter(filter.passt).sort((a, b) => {
+    if (zustand.sortierung === "preis-auf") return a.preis - b.preis;
+    if (zustand.sortierung === "preis-ab") return b.preis - a.preis;
+    return b.prio - a.prio || a.preis - b.preis;
+  });
+
+  const raster = $("#raster");
+  raster.replaceChildren();
+  liste.forEach((w, i) => raster.append(karte(w, i)));
+  if (darfBearbeiten()) {
+    raster.append(el("button", { class: "neu-karte", type: "button", onclick: () => bearbeitenDialog(null) },
+      el("span", { class: "plus", "aria-hidden": "true", text: "+" }), el("span", { text: "Neuen Wunsch hinzufügen" })));
+  } else if (!liste.length) {
+    raster.append(el("p", { class: "leer-hinweis", text:
+      !zustand.wuensche.length ? "Janis hat noch keine Wünsche eingetragen. Schau bald wieder vorbei."
+      : zustand.filter === "frei" ? "Alles vergeben. Janis kann sich auf Weihnachten freuen."
+      : "In dieser Preisklasse steht nichts auf dem Zettel. Probier eine andere." }));
+  }
+
+  if (zustand.neuGestempelt) {
+    const wrap = raster.querySelector(`[data-id="${CSS.escape(zustand.neuGestempelt)}"]`);
+    if (wrap && !reduziert) { wrap.classList.add("schwingt"); wrap.addEventListener("animationend", () => wrap.classList.remove("schwingt"), { once: true }); }
+    zustand.neuGestempelt = null;
+  }
+}
+
+function fussAktionen() {
+  const box = $("#fuss-aktionen");
+  box.replaceChildren();
+  if (!speicher || speicher.modus !== "live") return;
+  if (speicher.istBesitzer) {
+    box.append(
+      el("button", { type: "button", text: istJanisAnsicht() ? "Vorschau: so sieht es die Familie" : "Zurück zur Bearbeitung",
+        onclick: () => { zustand.ansicht = istJanisAnsicht() ? "familie-vorschau" : "janis"; zeichnen(); } }),
+      el("button", { type: "button", text: "Abmelden", onclick: async () => { await fb.abmelden(); location.reload(); } })
+    );
+  } else {
+    box.append(el("button", { type: "button", text: "Ich bin Janis: anmelden", onclick: janisAnmelden }));
+  }
+}
+
+/* ------------------------------------------------------------------
+   Aktionen der Familie
+------------------------------------------------------------------- */
+let toastTimer;
+function hinweis(text) {
+  const t = $("#toast");
+  t.textContent = text;
+  t.classList.add("zeigen");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("zeigen"), 3400);
+}
+async function ausfuehren(f) {
+  try { await f(); } catch (e) { console.error(e); hinweis(e.message && !/^\w+\/|permission|Missing/i.test(e.message) ? e.message : "Das hat nicht geklappt. Versuch es noch einmal."); }
+}
+
+function dialogOeffnen(dlg, vorbereiten, abschicken) {
+  const form = $("form", dlg);
+  form.reset();
+  vorbereiten(form);
+  dlg.showModal();
+  dlg.addEventListener("close", function zu() {
+    dlg.removeEventListener("close", zu);
+    if (dlg.returnValue === "ok") ausfuehren(() => abschicken(form));
+  });
+}
+
+function reservierDialog(w) {
+  dialogOeffnen($("#dlg-reservieren"), form => {
+    $("#dlg-res-titel").textContent = w.titel;
+    form.name.value = sicherLesen("wl_name", "");
+  }, async form => {
+    const name = form.name.value.trim().slice(0, 30) || "Jemand";
+    sicherSchreiben("wl_name", name);
+    await speicher.reservieren(w.id, name);
+    zustand.neuGestempelt = w.id;
+    zeichnen();
+    konfettiAus(w.id);
+    hinweis("Reserviert. Janis erfährt nichts davon.");
+  });
+}
+
+function beitragDialog(w) {
+  const offen = Math.max(0, w.preis - summe(w.id));
+  dialogOeffnen($("#dlg-beitrag"), form => {
+    $("#dlg-bei-titel").textContent = w.titel + " zusammen schenken";
+    $("#dlg-bei-text").textContent = `Es fehlen noch ${euro(offen)}. Hier tragt ihr nur ein, wer wie viel gibt. Das Geld sammelt ihr unter euch.`;
+    form.name.value = sicherLesen("wl_name", "");
+    form.betrag.max = String(Math.max(1, Math.ceil(offen)));
+  }, async form => {
+    const name = form.name.value.trim().slice(0, 30) || "Jemand";
+    const betrag = Math.min(10000, Math.max(1, Math.round(Number(form.betrag.value) || 0)));
+    sicherSchreiben("wl_name", name);
+    const vorher = summe(w.id);
+    await speicher.beitragen(w.id, name, betrag);
+    const fertig = vorher + betrag >= w.preis;
+    if (fertig) { zustand.neuGestempelt = w.id; zeichnen(); konfettiAus(w.id); hinweis("Komplett! Ihr habt es zusammen geschafft."); }
+    else hinweis(`${euro(betrag)} eingetragen. Danke!`);
+  });
+}
+
+async function freigeben(w) {
+  await ausfuehren(async () => { await speicher.freigeben(w.id); hinweis(`„${w.titel}“ ist wieder frei.`); });
+}
+
+/* ------------------------------------------------------------------
+   Bearbeiten (nur Janis)
+------------------------------------------------------------------- */
+let beaBild = null, beaWunsch = null;
+
+function beaVorschau() {
+  $("#bea-vorschau").src = beaBild || ERSATZBILD;
+  $("#bea-bild-weg").hidden = !beaBild;
+}
+
+async function bildVerkleinern(datei) {
+  if (!datei || !datei.type.startsWith("image/")) throw new Error("Das ist kein Bild.");
+  const url = URL.createObjectURL(datei);
+  try {
+    const img = await new Promise((ok, nein) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => nein(new Error("Das Bild ließ sich nicht öffnen.")); i.src = url; });
+    const max = 900;
+    const faktor = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.naturalWidth * faktor); c.height = Math.round(img.naturalHeight * faktor);
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    for (const q of [.85, .75, .6, .45]) {
+      let d = c.toDataURL("image/webp", q);
+      if (!d.startsWith("data:image/webp")) d = c.toDataURL("image/jpeg", q);
+      if (d.length < 700000) return d;
+    }
+    throw new Error("Das Bild ist zu groß. Nimm ein kleineres.");
+  } finally { URL.revokeObjectURL(url); }
+}
+
+function bearbeitenDialog(w) {
+  beaWunsch = w;
+  const dlg = $("#dlg-bearbeiten"), form = $("#bea-form");
+  form.reset();
+  $("#bea-fehler").hidden = true;
+  $("#bea-titel").textContent = w ? "Wunsch bearbeiten" : "Neuer Wunsch";
+  $("#bea-loeschen").hidden = !w;
+  if (w) {
+    form.titel.value = w.titel || "";
+    form.notiz.value = w.notiz || "";
+    form.preis.value = w.preis ?? "";
+    form.groesse.value = w.groesse || "";
+    form.link.value = w.link || "";
+    form.zusammen.checked = !!w.zusammen;
+    form.querySelector(`input[name=prio][value="${w.prio || 2}"]`).checked = true;
+    beaBild = w.bild || null;
+    if (istSicherUrl(w.bild)) form.bildlink.value = w.bild;
+  } else beaBild = null;
+  beaVorschau();
+  dlg.showModal();
+  form.titel.focus();
+}
+
+function beaFehler(text) { const f = $("#bea-fehler"); f.textContent = text; f.hidden = false; }
+
+$("#bea-datei").addEventListener("change", async e => {
+  const datei = e.target.files[0];
+  e.target.value = "";
+  try { beaBild = await bildVerkleinern(datei); $("#bea-form").bildlink.value = ""; beaVorschau(); }
+  catch (err) { beaFehler(err.message); }
+});
+$("#dlg-bearbeiten").addEventListener("paste", async e => {
+  const datei = [...(e.clipboardData?.files || [])].find(f => f.type.startsWith("image/"));
+  if (!datei) return;
+  e.preventDefault();
+  try { beaBild = await bildVerkleinern(datei); $("#bea-form").bildlink.value = ""; beaVorschau(); hinweis("Bild eingefügt."); }
+  catch (err) { beaFehler(err.message); }
+});
+$("#bea-form").bildlink.addEventListener("input", e => {
+  const v = e.target.value.trim();
+  if (istSicherUrl(v)) { beaBild = v; beaVorschau(); }
+  else if (!v && beaBild && istSicherUrl(beaBild)) { beaBild = null; beaVorschau(); }
+});
+$("#bea-bild-weg").addEventListener("click", () => { beaBild = null; $("#bea-form").bildlink.value = ""; beaVorschau(); });
+
+$("#bea-form").addEventListener("submit", async e => {
+  const knopf = e.submitter;
+  if (!knopf || knopf.value !== "ok") return;
+  e.preventDefault();
+  const form = e.target;
+  const titel = form.titel.value.trim();
+  const preis = Number(String(form.preis.value).replace(",", "."));
+  const link = form.link.value.trim();
+  if (!titel) return beaFehler("Gib dem Wunsch einen Namen.");
+  if (!(preis >= 0) || form.preis.value === "") return beaFehler("Trag einen ungefähren Preis ein.");
+  if (link && !istSicherUrl(link)) return beaFehler("Der Shop-Link muss mit https:// beginnen.");
+  const w = {
+    ...(beaWunsch?.id ? { id: beaWunsch.id } : {}),
+    titel: titel.slice(0, 80),
+    notiz: form.notiz.value.trim().slice(0, 300),
+    preis: Math.round(preis),
+    prio: Number(form.querySelector("input[name=prio]:checked")?.value || 2),
+    groesse: form.groesse.value.trim().slice(0, 40),
+    link,
+    bild: beaBild || "",
+    zusammen: form.zusammen.checked
+  };
+  knopf.disabled = true;
+  try {
+    await speicher.wunschSpeichern(w);
+    $("#dlg-bearbeiten").close();
+    hinweis(beaWunsch ? "Gespeichert." : "Wunsch hinzugefügt.");
+  } catch (err) { console.error(err); beaFehler("Speichern hat nicht geklappt. Prüf deine Verbindung und versuch es noch einmal."); }
+  finally { knopf.disabled = false; }
+});
+$("#bea-loeschen").addEventListener("click", async () => {
+  if (!beaWunsch) return;
+  const knopf = $("#bea-loeschen");
+  if (knopf.dataset.sicher !== "ja") { knopf.dataset.sicher = "ja"; knopf.textContent = "Wirklich löschen?"; return; }
+  knopf.dataset.sicher = ""; knopf.textContent = "Löschen";
+  try { await speicher.wunschLoeschen(beaWunsch.id); $("#dlg-bearbeiten").close(); hinweis("Wunsch gelöscht."); }
+  catch (err) { console.error(err); beaFehler("Löschen hat nicht geklappt."); }
+});
+$("#dlg-bearbeiten").addEventListener("close", () => { const k = $("#bea-loeschen"); k.dataset.sicher = ""; k.textContent = "Löschen"; });
+
+async function linkTeilen() {
+  const url = speicher?.modus === "live" ? `${location.origin}${location.pathname}?l=${listenId}` : location.href;
+  const text = "Mein Wunschzettel für Weihnachten";
+  if (navigator.share) { try { await navigator.share({ title: "Janis' Wunschzettel", text, url }); return; } catch (e) { if (e.name === "AbortError") return; } }
+  try { await navigator.clipboard.writeText(url); hinweis("Link kopiert. Schick ihn deiner Familie."); }
+  catch { hinweis(url); }
+}
+
+/* ------------------------------------------------------------------
+   Losmaschine
+------------------------------------------------------------------- */
+const LOS_H = 250;
+let losAnimation = null, losGezogen = null;
+
+function losMaschine() {
+  const dlg = $("#dlg-los");
+  dlg.style.setProperty("--los-h", LOS_H + "px");
+  if (!dlg.open) dlg.showModal();
+  ziehen();
+}
+
+function ziehen() {
+  const frei = zustand.wuensche.filter(w => !istErledigt(w));
+  const band = $("#los-band"), ergebnis = $("#los-ergebnis"), nehmen = $("#los-nehmen"), nochmal = $("#los-nochmal");
+  ergebnis.replaceChildren(); nehmen.hidden = true; losGezogen = null;
+  if (losAnimation) { losAnimation.cancel(); losAnimation = null; }
+  if (!frei.length) {
+    band.replaceChildren();
+    $("#los-text").textContent = "Alles vergeben. Mehr Wünsche hat Janis nicht.";
+    nochmal.hidden = true;
+    return;
+  }
+  $("#los-text").textContent = frei.length === 1 ? "Nur noch ein Wunsch ist frei." : `Sie zieht einen von ${frei.length} freien Wünschen.`;
+  nochmal.hidden = frei.length < 2;
+
+  const gewinner = frei[Math.floor(Math.random() * frei.length)];
+  const mischen = arr => arr.map(x => [Math.random(), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+  const folge = [];
+  const runden = frei.length === 1 ? 0 : Math.max(3, Math.ceil(22 / frei.length));
+  for (let i = 0; i < runden; i++) folge.push(...mischen(frei));
+  folge.push(gewinner);
+  band.style.transform = "";
+  band.replaceChildren(...folge.map(w => el("div", { class: "los-feld" }, bildRahmen(w), el("span", { class: "los-titel", text: w.titel }))));
+
+  const ziel = -(folge.length - 1) * LOS_H;
+  nochmal.disabled = true;
+  const fertig = () => {
+    band.style.transform = `translateY(${ziel}px)`;
+    nochmal.disabled = false;
+    losGezogen = gewinner;
+    ergebnis.textContent = `Gezogen! Ca. ${euro(gewinner.preis)}` + (gewinner.zusammen ? ", zum Zusammenlegen" : "");
+    nehmen.textContent = gewinner.zusammen ? "Etwas beisteuern" : "Ich besorge das";
+    nehmen.hidden = false;
+    nehmen.focus();
+    const r = $("#dlg-los .los-fenster").getBoundingClientRect();
+    fx.konfetti(r.left + r.width / 2, r.top + r.height / 2);
+  };
+  if (reduziert || folge.length === 1) { fertig(); return; }
+  losAnimation = band.animate([
+    { transform: "translateY(0px)", filter: "blur(0px)" },
+    { filter: "blur(2.5px)", offset: .12 },
+    { filter: "blur(1.5px)", offset: .6 },
+    { transform: `translateY(${ziel}px)`, filter: "blur(0px)" }
+  ], { duration: 4200, easing: "cubic-bezier(.12,.75,.25,1.03)", fill: "forwards" });
+  losAnimation.onfinish = () => { losAnimation = null; fertig(); };
+}
+
+/* ------------------------------------------------------------------
+   Countdown bis zur Bescherung (24.12., 18 Uhr)
+------------------------------------------------------------------- */
+function countdown() {
+  const jetzt = new Date();
+  let ziel = new Date(jetzt.getFullYear(), 11, 24, 18, 0, 0);
+  const ende = new Date(jetzt.getFullYear(), 11, 27, 0, 0, 0);
+  const c = $("#countdown");
+  if (jetzt >= ziel && jetzt < ende) { c.textContent = "Frohe Weihnachten!"; return; }
+  if (jetzt >= ende) ziel = new Date(jetzt.getFullYear() + 1, 11, 24, 18, 0, 0);
+  const min = Math.floor((ziel - jetzt) / 60000);
+  const t = Math.floor(min / 1440), s = Math.floor((min % 1440) / 60), m = min % 60;
+  const teile = [];
+  if (t) teile.push(t === 1 ? "1 Tag" : `${t} Tage`);
+  teile.push(s === 1 ? "1 Stunde" : `${s} Stunden`);
+  if (t < 1) teile.push(m === 1 ? "1 Minute" : `${m} Minuten`);
+  c.textContent = `Noch ${teile.join(", ")} bis zur Bescherung`;
+}
+
+/* ------------------------------------------------------------------
+   Schnee, Konfetti, Schlitten
+------------------------------------------------------------------- */
+const fx = (() => {
+  const cvS = $("#schnee"), cS = cvS.getContext("2d");
+  const cvK = $("#konfetti"), cK = cvK.getContext("2d");
+  let w = 0, h = 0, flocken = [], funken = [], schneeAn = !reduziert, sturm = 0;
+  const groesse = () => {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    w = window.innerWidth; h = window.innerHeight;
+    for (const [cv, c] of [[cvS, cS], [cvK, cK]]) { cv.width = w * dpr; cv.height = h * dpr; c.setTransform(dpr, 0, 0, dpr, 0, 0); }
+    const ziel = Math.round(Math.min(140, w * h / 9000));
+    while (flocken.length < ziel) flocken.push(neueFlocke(true));
+    flocken.length = ziel;
+  };
+  const neueFlocke = irgendwo => ({ x: Math.random() * w, y: irgendwo ? Math.random() * h : -10, r: .8 + Math.random() * 2.4, v: .3 + Math.random() * .9, d: Math.random() * Math.PI * 2 });
+  const farben = ["#e6b84f", "#b02a30", "#f4f6f2", "#d6b98c", "#6fae8f"];
+  function schritt() {
+    cS.clearRect(0, 0, w, h);
+    if (schneeAn || sturm > 0) {
+      const tempo = sturm > 0 ? 4 : 1;
+      cS.fillStyle = "rgba(244,246,242,.8)";
+      for (const f of flocken) {
+        f.d += .01; f.y += f.v * tempo; f.x += Math.sin(f.d) * .4 + (sturm > 0 ? 2 : 0);
+        if (f.y > h + 5 || f.x > w + 10) Object.assign(f, neueFlocke(false), { x: Math.random() * w });
+        cS.beginPath(); cS.arc(f.x, f.y, f.r, 0, Math.PI * 2); cS.fill();
+      }
+      if (sturm > 0) sturm--;
+    }
+    if (funken.length) {
+      cK.clearRect(0, 0, w, h);
+      for (let i = funken.length - 1; i >= 0; i--) {
+        const p = funken[i];
+        p.vy += .25; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.leben--;
+        cK.save(); cK.translate(p.x, p.y); cK.rotate(p.rot);
+        cK.globalAlpha = Math.min(1, p.leben / 30); cK.fillStyle = p.farbe;
+        cK.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); cK.restore();
+        if (p.leben <= 0) funken.splice(i, 1);
+      }
+      if (!funken.length) cK.clearRect(0, 0, w, h);
+    }
+    requestAnimationFrame(schritt);
+  }
+  window.addEventListener("resize", groesse);
+  groesse(); requestAnimationFrame(schritt);
+  return {
+    schnee(an) { schneeAn = an; },
+    istSchnee() { return schneeAn; },
+    konfetti(x, y) {
+      if (reduziert) return;
+      for (let i = 0; i < 90; i++) {
+        const a = Math.random() * Math.PI * 2, v = 3 + Math.random() * 7;
+        funken.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 5, s: 6 + Math.random() * 6, rot: Math.random() * 6, vr: (Math.random() - .5) * .3, leben: 70 + Math.random() * 40, farbe: farben[i % farben.length] });
+      }
+    },
+    sturm() { sturm = 480; }
+  };
+})();
+
+function konfettiAus(id) {
+  const wrap = document.querySelector(`[data-id="${CSS.escape(id)}"]`);
+  if (!wrap) return;
+  const r = wrap.getBoundingClientRect();
+  fx.konfetti(r.left + r.width / 2, r.top + 60);
+}
+
+function schlitten() {
+  const s = $("#schlitten");
+  if (reduziert) { hinweis("Ho ho ho! 🎅"); return; }
+  s.classList.remove("fliegt"); void s.offsetWidth; s.classList.add("fliegt");
+  fx.sturm();
+  hinweis("Ho ho ho! Du hast den Schlitten gefunden.");
+}
+
+let tippPuffer = "", titelKlicks = 0, titelTimer;
+document.addEventListener("keydown", e => {
+  if (e.target.closest("input, textarea, select")) return;
+  tippPuffer = (tippPuffer + e.key.toLowerCase()).slice(-6);
+  if (tippPuffer === "hohoho") { tippPuffer = ""; schlitten(); }
+});
+$("#titel").addEventListener("click", () => {
+  titelKlicks++; clearTimeout(titelTimer);
+  titelTimer = setTimeout(() => titelKlicks = 0, 1500);
+  if (titelKlicks >= 5) { titelKlicks = 0; schlitten(); }
+});
+
+/* ------------------------------------------------------------------
+   Start
+------------------------------------------------------------------- */
+$("#sortierung").addEventListener("change", e => { zustand.sortierung = e.target.value; zeichnen(); });
+$("#ueberrasch").addEventListener("click", losMaschine);
+$("#los-nochmal").addEventListener("click", ziehen);
+$("#los-schliessen").addEventListener("click", () => $("#dlg-los").close());
+$("#dlg-los").addEventListener("close", () => { if (losAnimation) { losAnimation.cancel(); losAnimation = null; } });
+$("#los-nehmen").addEventListener("click", () => {
+  const w = losGezogen;
+  $("#dlg-los").close();
+  if (w) (w.zusammen ? beitragDialog : reservierDialog)(w);
+});
+$("#neuer-wunsch").addEventListener("click", () => bearbeitenDialog(null));
+$("#link-teilen").addEventListener("click", linkTeilen);
+$("#schnee-knopf").addEventListener("click", e => {
+  const an = !fx.istSchnee(); fx.schnee(an);
+  e.currentTarget.textContent = an ? "Schnee aus" : "Schnee an";
+  e.currentTarget.setAttribute("aria-pressed", String(an));
+});
+if (!fx.istSchnee()) { $("#schnee-knopf").textContent = "Schnee an"; $("#schnee-knopf").setAttribute("aria-pressed", "false"); }
+document.querySelectorAll("#demo-leiste .chip").forEach(b => b.addEventListener("click", () => { zustand.ansicht = b.dataset.ansicht; zeichnen(); }));
+document.querySelectorAll("#betrag-chips button").forEach(b => b.addEventListener("click", () => {
+  const input = $("#dlg-beitrag input[name=betrag]");
+  input.value = Math.min(Number(b.dataset.betrag), Number(input.max) || Infinity);
+}));
+$("#start-anmelden").addEventListener("click", janisAnmelden);
+
+function listeZeigen() {
+  $("#start").hidden = true;
+  $("#leiste").hidden = false;
+  $("#fuss").hidden = false;
+  speicher.abonnieren(d => {
+    zustand.wuensche = d.wuensche;
+    zustand.reservierungen = d.reservierungen || {};
+    zustand.beitraege = d.beitraege || [];
+    zeichnen();
+  });
+}
+
+function startseite(titel, text, mitAnmelden = true) {
+  $("#start").hidden = false;
+  $("#leiste").hidden = true;
+  $("#fuss").hidden = true;
+  $("#raster").replaceChildren();
+  $("#start-titel").textContent = titel;
+  $("#start-text").textContent = text;
+  $("#start-anmelden").hidden = !mitAnmelden;
+  $("#intro").textContent = "";
+}
+
+/* Janis meldet sich mit Google an. Danach findet die Seite seine Liste oder legt eine neue an. */
+async function janisAnmelden() {
+  if (!fb) return;
+  try {
+    await fb.anmelden();
+    if (!fb.istGoogle()) return;
+    const { fs, db } = fb;
+    const snap = await fs.getDocs(fs.query(fs.collection(db, "listen"), fs.where("besitzer", "==", fb.nutzer.uid), fs.limit(1)));
+    let id = snap.docs[0]?.id;
+    if (!id) {
+      id = zufallsId(20);
+      await fs.setDoc(fs.doc(db, "listen", id), { besitzer: fb.nutzer.uid, erstellt: fs.serverTimestamp() });
+    }
+    location.href = `${location.pathname}?l=${id}`;
+  } catch (e) {
+    console.error(e);
+    if (e.code === "permission-denied") {
+      await fb.abmelden();
+      startseite("Kein Zugriff", "Mit diesem Google-Konto kannst du hier keinen Wunschzettel anlegen. Melde dich mit dem Konto an, das in den Sicherheitsregeln steht.");
+    } else hinweis("Anmeldung hat nicht geklappt. Versuch es noch einmal.");
+  }
+}
+
+(async () => {
+  countdown(); setInterval(countdown, 30000);
+
+  if (!FIREBASE_CONFIG || new URLSearchParams(location.search).has("demo")) {
+    speicher = demoSpeicher();
+    zustand.ansicht = new URLSearchParams(location.search).get("ansicht") === "janis" ? "janis" : "familie";
+    $("#demo-leiste").hidden = false;
+    listeZeigen();
+    return;
+  }
+
+  startseite("Einen Moment …", "Der Wunschzettel wird geladen.", false);
+  try {
+    fb = await firebaseStarten(FIREBASE_CONFIG);
+  } catch (e) {
+    console.error(e);
+    startseite("Keine Verbindung", "Der Wunschzettel lässt sich gerade nicht laden. Prüf deine Internetverbindung und lade die Seite neu.", false);
+    return;
+  }
+
+  listenId = new URLSearchParams(location.search).get("l");
+  if (!listenId) {
+    if (fb.istGoogle()) { janisAnmelden(); return; }
+    startseite("Hier fehlt der Link", "Öffne den Wunschzettel über den Link, den Janis dir geschickt hat.");
+    return;
+  }
+
+  try {
+    const liste = await fb.fs.getDoc(fb.fs.doc(fb.db, "listen", listenId));
+    if (!liste.exists()) {
+      startseite("Diesen Wunschzettel gibt es nicht", "Prüf, ob du den Link vollständig kopiert hast.", false);
+      return;
+    }
+    const istBesitzer = liste.data().besitzer === fb.nutzer.uid;
+    speicher = firebaseSpeicher(fb, listenId, istBesitzer);
+    zustand.ansicht = istBesitzer ? "janis" : "familie";
+    listeZeigen();
+  } catch (e) {
+    console.error(e);
+    startseite("Keine Verbindung", "Der Wunschzettel lässt sich gerade nicht laden. Lade die Seite neu.", false);
+  }
+})();
+</script>
+</body>
+</html>
